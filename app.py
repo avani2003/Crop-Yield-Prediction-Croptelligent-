@@ -8,14 +8,6 @@ from dotenv import load_dotenv
 # Load environment variables from .env
 load_dotenv()
 
-# Twilio credentials
-TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID', None)
-TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
-TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
-
-# Flask API URL
-FLASK_API_URL = os.getenv('FLASK_API_URL')
-
 # Create the Streamlit app
 with st.sidebar:
     selected = option_menu('Crop Recommendation System',
