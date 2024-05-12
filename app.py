@@ -25,22 +25,27 @@ if selected == 'Crops Recommendation':
     with col1:
         N = st.text_input('Type of Crop')
     with col2:
-        P = st.text_input('Area')
+        P = st.text_input('Season')
     with col1:
-        temperature = st.text_input('Temperature')
+        state = st.text_input('State')
     with col2:
-        humidity = st.text_input('Humidity')
+        production = st.text_input('Production')
     with col1:
-        rainfall = st.text_input('Rainfall')
+        rainfall = st.text_input('Annual Rainfall')
+    with col2:
+        fertilizer = st.text_input('Fertilizer Name')
+    with col1:
+        y = st.text_input('Fertilizer Name')
             
     if st.button('Submit'):
         try:
             input_features = {
                 "Type of Crop": str,
-                "Phosphorus": float(P),
-                "Temperature": float(temperature),
-                "Humidity": float(humidity),
-                "Rainfall": float(rainfall)
+                "Season": str,
+                "State": str,
+                "Production": str,
+                "Annual Ranfall": float(rainfall),
+                "Fertilizer Name": str
             }
             
             print("Input features:", input_features)
