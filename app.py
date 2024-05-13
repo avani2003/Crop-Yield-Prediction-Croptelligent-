@@ -1,84 +1,84 @@
 import streamlit as st
-from streamlit_option_menu import option_menu
-import requests
-from twilio.rest import Client
-import os
-from dotenv import load_dotenv
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+import xgboost as xgb
 
-# Load environment variables from .env
-load_dotenv()
+# Load data
+data = pd.read_csv('crop_yield.csv')
 
-# Create the Streamlit app
-with st.sidebar:
-    selected = option_menu('Crop Recommendation System',
-                            ['Crops Recommendation'],
-                            icons=['activity'],
-                            default_index=0)
 
-if selected == 'Crops Recommendation':
-    st.title('Croptelligent')
-    st.write("**Empower your farming decisions with our app that leverages advanced predictive models using historical climate and crop data to forecast yields and manage risks, helping you optimize planting schedules and mitigate environmental impacts.**")
+# Streamlit app
+st.title('Crop Yield Prediction')
+
+# Input widgets
+crop_options = ['Select Crop'] + data['Crop'].unique().tolist()
+season_options = ['Select Season'] + data['Season'].unique().tolist()
+state_options = ['Select State'] + data['State'].unique().tolist()
+
+crop = st.selectbox('Crop', crop_options)
+season = st.selectbox('Season', season_options)
+state = st.selectbox('State', state_options)
+production = st.number_input('Production')
+annual_rainfall = st.number_input('Annual Rainfall')
+fertilizer = st.number_input('Fertilizer')
+
+
+# Preprocessing
+categorical = ['Crop', 'Season', 'State']
+label_encoders = {}
+for col in categorical:
+    label_encoder = LabelEncoder()
+    data[col] = label_encoder.fit_transform(data[col])
+    label_encoders[col] = label_encoder
+
+scalar = StandardScaler()
+features = ['Crop', 'Season', 'State', 'Production', 'Annual_Rainfall', 'Fertilizer']
+data[features] = scalar.fit_transform(data[features])
+
+# Train-test split
+X = data.drop(['Yield','Crop_Year','Area','Pesticide'], axis=1)
+y = data['Yield']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=20)
+
+# Model training
+reg = xgb.XGBRegressor()
+reg.fit(X_train, y_train, verbose=100)
+
+
+# Predict function
+def predict_yield(crop, season, state, production, annual_rainfall, fertilizer):
+    input_data = {
+        'Crop': [crop],
+        'Season': [season],
+        'State': [state],
+        'Production': [production],
+        'Annual_Rainfall': [annual_rainfall],
+        'Fertilizer': [fertilizer]
+    }
+
+    input_df = pd.DataFrame.from_dict(input_data)
+
+    for col, encoder in label_encoders.items():
+        input_df[col] = encoder.transform(input_df[col])
+
+    input_df[features] = scalar.transform(input_df[features])
+
+    prediction = reg.predict(input_df)
+    return prediction[0]
+
+# Prediction
+if st.button('Predict Yield'):
+    prediction = predict_yield(crop, season, state, production, annual_rainfall, fertilizer)
+    st.write(f"Predicted Yield: {prediction:.3f} metric tonnes per unit area")
+
+    clear = st.button('Clear')
     
-    # Create input fields for user to enter features
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        N = st.text_input('Type of Crop')
-    with col2:
-        P = st.text_input('Season')
-    with col1:
-        state = st.text_input('State')
-    with col2:
-        production = st.text_input('Production')
-    with col1:
-        rainfall = st.text_input('Annual Rainfall')
-    with col2:
-        fertilizer = st.text_input('Fertilizer Name')
-    with col1:
-        y = st.text_input('Fertilizer Name')
-            
-    if st.button('Submit'):
-        try:
-            input_features = {
-                "Type of Crop": str,
-                "Season": str,
-                "State": str,
-                "Production": str,
-                "Annual Ranfall": float(rainfall),
-                "Fertilizer Name": str
-            }
-            
-            print("Input features:", input_features)
-            
-            if float(temperature) > 40:
-                st.warning("⚠️⚠️LOW WATER LEVEL IN YOUR SOIL⚠️⚠️")
-                
-                client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-                farmer_phone_number = '+918567098852'
-                message = f"Attention: ⚠️⚠️LOW WATER LEVEL IN YOUR SOIL⚠️⚠️"
-                client.messages.create(body=message, from_=TWILIO_PHONE_NUMBER, to=farmer_phone_number)
-            
-            try:
-                response = requests.post(FLASK_API_URL, json=input_features)
-                if response.status_code == 200:
-                    result = response.json()
-                    crop = result.get("prediction")
-                    # fertilizer_recommendation = result.get("fertilizer_recommendation")
-                    
-                    st.write(
-                        f'<div style="background-color: black; padding: 15px; margin-bottom: 20px; border-radius: 5px; color: white; font-size: 20px;">'
-                        f'Soil is fit to grow {crop}'
-                        f'</div>',
-                        unsafe_allow_html=True
-                    )
-                    
-                    client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-                    farmer_phone_number = '+918567098852'
-                    message = f"Soil is suitable for growing {crop}.\n\nThank you for using our crop recommendation system."
-                    client.messages.create(body=message, from_=TWILIO_PHONE_NUMBER, to=farmer_phone_number)
-                else:
-                    st.error("Failed to get prediction from the server.")
-            except requests.exceptions.ConnectionError:
-                st.error("Error: Unable to connect to the server. Please make sure the server is running.")
-        except ValueError:
-            st.error("Invalid input. Please provide valid values for all features.")
+    if clear:
+        st.empty()
+        crop = st.selectbox('Crop', crop_options)
+        season = st.selectbox('Season', season_options)
+        state = st.selectbox('State', state_options)
+        production = st.number_input('Production')
+        annual_rainfall = st.number_input('Annual Rainfall')
+        fertilizer = st.number_input('Fertilizer')
