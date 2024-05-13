@@ -11,6 +11,8 @@ data = pd.read_csv('crop_yield.csv')
 # Streamlit app
 st.title('Crop Yield Prediction')
 
+st.write('At Croptelligent, we are deeply committed to addressing the critical challenges faced by global agriculture due to the impact of climate change. As the world's population continues to grow, projected to reach nearly 10 billion by 2050, the demand for food will increase substantially.')
+
 # Input widgets
 crop_options = ['Select Crop'] + data['Crop'].unique().tolist()
 season_options = ['Select Season'] + data['Season'].unique().tolist()
