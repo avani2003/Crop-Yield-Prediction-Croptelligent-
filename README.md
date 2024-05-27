@@ -1,5 +1,6 @@
 # Crop-Yield-Prediction-Croptelligent-
 
+Team - Avani Kottalgi | Mrudula Rahate | Baishali Guha
 ## Introduction - 
 At Croptelligent, we are deeply committed to addressing the critical challenges faced by global agriculture due to the impact of climate change. As the world's population continues to grow, projected to reach nearly 10 billion by 2050, the demand for food will increase substantially. This demographic pressure, compounded by the erratic patterns of weather and the increase in extreme climate events, poses unprecedented threats to agricultural productivity and food security. Our focus is on leveraging advanced technology to provide adaptive solutions that not only predict and enhance crop yields but also ensure the sustainability of farming practices under these changing conditions.
 
